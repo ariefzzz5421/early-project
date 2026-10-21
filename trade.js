@@ -25,7 +25,7 @@
   };
   const marketCache=window.genesisMarkets={tokens:new Map(),nfts:new Map()};
   const state={
-    open:false,initialized:false,marketType:'tokens',search:'',sort:'marketCap',onlyActive:true,
+    open:false,initialized:false,curatedStarted:false,nftStarted:false,marketType:'tokens',search:'',sort:'marketCap',onlyActive:true,
     tokenAssets:new Map(),nftAssets:new Map(),tokenPages:0,nftPages:0,
     scanPages:0,scanDone:0,scanTotal:2432,scanRunning:false,nftRunning:false,
     tokenError:'',nftError:'',tokenChecked:'',nftChecked:'',lastErrorPage:-1,refreshed:0
@@ -193,6 +193,8 @@
     return response.json();
   }
   async function loadCurated(){
+    if(state.curatedStarted)return;
+    state.curatedStarted=true;
     try{
       const data=await fetchJson('/api/market-tokens?scope=curated');
       (data.assets||[]).forEach(rememberToken);
@@ -227,8 +229,8 @@
     }finally{state.scanRunning=false;notify();render()}
   }
   async function loadNftCollections(){
-    if(state.nftRunning)return;
-    state.nftRunning=true;state.nftError='';render();
+    if(state.nftRunning||state.nftStarted)return;
+    state.nftStarted=true;state.nftRunning=true;state.nftError='';render();
     try{
       let page=state.nftPages;
       while(page<15){
@@ -262,12 +264,17 @@
     if(now-state.refreshed<90000){$('#trade-status').textContent='Please allow 90 seconds between full refreshes.';return}
     state.refreshed=now;
     state.scanPages=0;state.scanDone=0;state.nftPages=0;state.tokenError='';state.nftError='';
+    state.curatedStarted=false;state.nftStarted=false;
     state.tokenAssets.clear();state.nftAssets.clear();marketCache.tokens.clear();marketCache.nfts.clear();
     loadCurated();loadNftCollections();scanArchive();render();
   }
   document.addEventListener('genesis:view',event=>{
-    state.open=event.detail.tab==='trade';
+    const tab=event.detail.tab;
+    state.open=tab==='trade';
     if(state.open)start();
+    // Decorate the historical category tables without requiring users to open Trade first.
+    else if(tab==='coins'||tab==='tcos')loadCurated();
+    else if(tab==='nfts')loadNftCollections();
   });
   $$('.trade-toggle-button').forEach(el=>el.addEventListener('click',()=>{
     state.marketType=el.dataset.marketType;state.sort=state.marketType==='tokens'?'marketCap':'floor';
