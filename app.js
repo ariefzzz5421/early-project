@@ -106,7 +106,7 @@
     const token=live.tokens?.get(item.address.toLowerCase());
     if(token?.pair && token.status==='active') {
       const value=token.pair.marketCap ?? token.pair.fdv;
-      const metric=token.pair.marketCap!=null?'MC':'FDV';
+      const metric=(token.linkedRepresentation?'LINKED ':'')+(token.pair.marketCap!=null?'MC':'FDV');
       if(value!=null)return '<span class="market-stamp">'+metric+' $'+smallNumber(value)+'</span>';
     }
     const nft=live.nfts?.get(item.address.toLowerCase());
@@ -121,7 +121,8 @@
     const token=live.tokens?.get(item.address.toLowerCase());
     if(token?.pair && token.status==='active') {
       const value=token.pair.marketCap ?? token.pair.fdv;
-      return '<div class="drawer-section-title">DEX SCREENER · RECENT SNAPSHOT</div><div class="detail-list">'+
+      return '<div class="drawer-section-title">'+(token.linkedRepresentation?'LINKED WRAPPED TOKEN · NOT ORIGINAL CONTRACT':'DEX SCREENER · RECENT SNAPSHOT')+'</div><div class="detail-list">'+
+        (token.linkedRepresentation?'<div class="detail-row"><label>Tradable address</label><span>'+escapeHtml(token.address)+'</span></div>':'')+
         '<div class="detail-row"><label>'+(token.pair.marketCap!=null?'Market cap':'FDV')+'</label><span>'+(value!=null?'$'+smallNumber(value):'Unavailable')+'</span></div>'+
         '<div class="detail-row"><label>Price USD</label><span>'+(token.pair.priceUsd!=null?'$'+escapeHtml(token.pair.priceUsd):'Unavailable')+'</span></div>'+
         '<div class="detail-row"><label>Volume 24h</label><span>'+(token.pair.volume24h!=null?'$'+smallNumber(token.pair.volume24h):'Unavailable')+'</span></div></div>';
