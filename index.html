@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
   <script src="/app.js" defer></script>
+  <script src="/trade.js" defer></script>
 </head>
 <body>
   <div class="ambient"></div>
@@ -28,6 +29,7 @@
         <button data-view="coins" class="nav-item"><span class="nav-icon">◈</span> Early Coins <span id="side-coins" class="nav-count">—</span></button>
         <button data-view="nfts" class="nav-item"><span class="nav-icon">▧</span> Early NFTs <span id="side-nfts" class="nav-count">—</span></button>
         <button data-view="tcos" class="nav-item"><span class="nav-icon">◎</span> Early TCOs <span id="side-tcos" class="nav-count">—</span></button>
+        <button data-view="trade" class="nav-item nav-trade"><span class="nav-icon">↗</span> Trade <span class="nav-trade-indicator">LIVE</span></button>
       </nav>
       <div class="side-section-label sources-label">RESEARCH SOURCES</div>
       <a class="side-source" href="https://www.goatishduck.com/" target="_blank" rel="noopener noreferrer"><span class="source-square">G</span><span>Goatishduck<small>Original archive</small></span><span class="source-arrow">↗</span></a>
@@ -48,6 +50,58 @@
         </div>
       </header>
       <main>
+
+        <section class="trade-page" id="trade-page" aria-label="Live trade intelligence">
+          <div class="trade-hero">
+            <div class="trade-hero-inner">
+              <div class="trade-kicker"><span class="live-pulse"></span> LIVE MARKET INTELLIGENCE <span class="trade-kicker-divider">/</span> ETHEREUM ARCHIVE</div>
+              <h1>Old contracts.<br /><em>New markets.</em></h1>
+              <p>Track which historical Ethereum tokens and NFT collections have verifiable markets today. Direct integration with DEX Screener and OpenSea, matched by contract—not by name.</p>
+              <div class="trade-hero-foot"><span>DEX SCREENER + OPENSEA</span><span class="trade-last-checked" id="trade-updated">AWAITING LIVE DATA</span></div>
+            </div>
+            <div class="trade-hero-art" aria-hidden="true"><div class="trade-radar r1"></div><div class="trade-radar r2"></div><div class="trade-radar r3"></div><div class="trade-radar-center">◎</div><div class="radar-dot rd1"></div><div class="radar-dot rd2"></div><div class="radar-dot rd3"></div></div>
+          </div>
+          <div class="trade-metrics">
+            <div class="trade-metric"><span>MARKET-MATCHED TOKENS <span>↗</span></span><strong id="trade-token-count">—</strong><small>Exact-contract DEX matches</small></div>
+            <div class="trade-metric"><span>ACTIVE TOKEN MARKETS <span>↗</span></span><strong id="trade-active-tokens">—</strong><small>Liquidity or 24h trading detected</small></div>
+            <div class="trade-metric"><span>NFT COLLECTIONS INDEXED <span>↗</span></span><strong id="trade-nft-count">—</strong><small>Historical NFT + TCO source entries</small></div>
+            <div class="trade-metric"><span>ACTIVE NFT MARKETS <span>↗</span></span><strong id="trade-active-nfts">—</strong><small>OpenSea floor or 24h sales volume</small></div>
+          </div>
+          <div class="trade-section-head">
+            <div><div class="section-eyebrow">LIVE DATA / MARKET DISCOVERY</div><h2>Trade <span>terminal.</span></h2><p>Sorted by observed market value, price, floor and activity. Metrics are sourced from the respective marketplace—not the historical spreadsheet.</p></div>
+            <button type="button" class="trade-refresh" id="trade-refresh"><span>↻</span> REFRESH DATA</button>
+          </div>
+          <div class="trade-workspace">
+            <div class="trade-toggle" role="tablist" aria-label="Choose market class">
+              <button type="button" role="tab" class="trade-toggle-button active" aria-selected="true" data-market-type="tokens"><span>◈</span> TOKEN MARKETS <small id="token-tab-count">—</small></button>
+              <button type="button" role="tab" class="trade-toggle-button" aria-selected="false" data-market-type="nfts"><span>▧</span> NFT COLLECTIONS <small id="nft-tab-count">—</small></button>
+            </div>
+            <div class="trade-toolbar">
+              <label class="trade-search"><span>⌕</span><input type="search" autocomplete="off" id="trade-search" placeholder="Search market, ticker or contract..." aria-label="Search live markets" /></label>
+              <select id="trade-sort" class="trade-select" aria-label="Sort markets">
+                <option value="marketCap">Market cap ↓</option><option value="price">Token price ↓</option><option value="volume">24h volume ↓</option><option value="liquidity">DEX liquidity ↓</option>
+              </select>
+              <label class="trade-checkbox"><input type="checkbox" id="trade-active-only" checked /> Active only</label>
+            </div>
+            <div class="trade-status-bar"><div class="trade-status-text"><span class="live-pulse"></span><span id="trade-status">Connecting to market providers…</span></div><span class="trade-provider" id="trade-provider">DEX SCREENER · ETHEREUM</span></div>
+            <div class="trade-data-scroll">
+              <table class="trade-table">
+                <thead id="trade-table-head"><tr><th>ASSET</th><th>MARKET CAP / FDV</th><th>PRICE USD</th><th>24H CHANGE</th><th>24H VOLUME</th><th>LIQUIDITY</th><th>MARKET</th></tr></thead>
+                <tbody id="trade-table-body"><tr><td colspan="7" class="table-loading">Discovering archived token markets…</td></tr></tbody>
+              </table>
+            </div>
+            <div class="trade-footer"><span id="trade-result-count">Market data has not loaded</span><span class="trade-footer-legend">— MEANS NOT REPORTED BY PROVIDER</span></div>
+          </div>
+          <div class="trade-scan">
+            <div><div class="section-eyebrow">CONTRACT-LEVEL DISCOVERY</div><h3>Scanning the <em>genesis era.</em></h3><p>Auto-checking the 2,432 historical contracts in the archive for exact-address matches on Ethereum DEX Screener. This is a market-index lookup, not ERC-20 classification or an onchain safety audit.</p></div>
+            <div class="scan-monitor"><div class="scan-head"><span id="scan-description">FULL ARCHIVE DISCOVERY</span><strong id="scan-progress">0 / 2,432</strong></div><div class="scan-track"><div id="scan-progress-bar" class="scan-progress-bar"></div></div><div class="scan-bottom"><span id="scan-subtext">Starts automatically on this page</span><button type="button" id="scan-retry" hidden>RETRY SCAN ↗</button></div></div>
+          </div>
+          <div class="trade-notes">
+            <div class="trade-notes-icon">ⓘ</div>
+            <div><strong>Market data integrity</strong><p>Token market cap and FDV are different metrics; when market cap is unavailable, FDV is labeled explicitly. Historical contract addresses may be different from the linked tradable token (wrapper / derivative). NFT floor prices and volumes use their reported payment currencies and cannot always be compared as ETH. OpenSea collection links from the original archive may refer to wrapped or related collections. No token/NFT should be presumed safe because it appears here. Missing provider data is shown as unavailable, never as zero.</p></div>
+          </div>
+          <div class="trade-source-foot"><span>DATA SOURCES</span><a target="_blank" rel="noopener noreferrer" href="https://docs.dexscreener.com/api/reference">DEX SCREENER API ↗</a><a target="_blank" rel="noopener noreferrer" href="https://docs.opensea.io/reference/get_collection_stats">OPENSEA COLLECTION STATS ↗</a><a target="_blank" rel="noopener noreferrer" href="https://www.goatishduck.com/">GOATISHDUCK ARCHIVE ↗</a></div>
+        </section>
         <section class="hero" id="hero">
           <div class="hero-left">
             <div class="eyebrow"><span class="little-cross">✳</span> EXPLORE ETHEREUM'S ORIGINS <span class="eyebrow-line"></span> EST. 2015</div>
