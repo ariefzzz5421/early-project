@@ -215,10 +215,10 @@
       while(page<21){
         const data=await fetchJson('/api/market-tokens?scope=archive&page='+page);
         (data.assets||[]).forEach(rememberToken);
+        if(data.partial)throw new Error('Partial DEX response on this batch; retry the same page');
         state.scanPages=page+1;
         state.scanDone+=data.tested||0;
         state.scanTotal=2432;
-        if(data.partial) state.tokenError='DEX partial response on archive page '+(page+1);
         if(data.totalPages && page+1>=data.totalPages) {break}
         page++;
         notify();render();
@@ -260,6 +260,10 @@
     scanArchive();
   }
   function refresh(){
+    if(state.scanRunning||state.nftRunning) {
+      $('#trade-status').textContent='An archive scan is already in progress.';
+      return;
+    }
     const now=Date.now();
     if(now-state.refreshed<90000){$('#trade-status').textContent='Please allow 90 seconds between full refreshes.';return}
     state.refreshed=now;
