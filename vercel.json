@@ -27,5 +27,15 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/trade",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/trade/",
+      "destination": "/index.html"
+    }
   ]
 }
