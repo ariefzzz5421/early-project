@@ -175,7 +175,11 @@
     if(existing && existing.source!=='Contract' && a.source==='Contract')return;
     state.tokenAssets.set(key,a);
     marketCache.tokens.set(key,a);
-    if(a.archiveAddress && a.address.toLowerCase()===a.archiveAddress.toLowerCase()) marketCache.tokens.set(a.archiveAddress.toLowerCase(),a);
+    if(a.archiveAddress && a.linkedRepresentation && a.pair && a.status==='active') {
+      const historic=a.archiveAddress.toLowerCase();
+      const current=marketCache.tokens.get(historic);
+      if(!current?.pair || current.status!=='active')marketCache.tokens.set(historic,a);
+    }
   }
   function rememberNft(a){
     if(!a?.address)return;
