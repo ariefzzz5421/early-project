@@ -22,6 +22,8 @@ function add(data,type) {
     const address=addr(x['Contract Address']);
     if(!address) continue;
     const rawUrl=takeUrl(x['Trade URL']);
+    // TCOs labeled fungible are not NFT collections unless source explicitly links an OpenSea collection.
+    if(type==='TCO' && x['F/NF']!=='NF' && !slugFromUrl(rawUrl))continue;
     const existing=all.get(address);
     const entry={
       id:address,address,name:x.Name||'Untitled collection',
