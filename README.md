@@ -4,7 +4,7 @@ A searchable, independently designed research interface for the public historica
 
 ## Live application
 
-This repo is designed to deploy as a static site on Vercel (no build command or environment variables needed).
+**Production website:** https://early-project-gray.vercel.app/\n\nThis repo deploys as a static site on Vercel from the connected `main` branch (no build command or environment variables needed).
 
 ## Imported source datasets
 
