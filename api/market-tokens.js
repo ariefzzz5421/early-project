@@ -13,7 +13,7 @@ const ETH = /^0x[a-f\d]{40}$/i;
 const cache = new Map();
 const NOW = () => Date.now();
 const addr = x => ETH.test(String(x || '')) ? String(x).toLowerCase() : '';
-const num = n => Number.isFinite(Number(n)) ? Number(n) : null;
+const num = n => n === null || n === undefined || n === '' ? null : (Number.isFinite(Number(n)) ? Number(n) : null);
 const pick = (o,k) => o && Object.prototype.hasOwnProperty.call(o,k) ? o[k] : null;
 
 function linkedToken(raw) {
@@ -143,9 +143,9 @@ module.exports=async function handler(req,res) {
       partial:result.failedBatches>0,
       marketSource:'DEX Screener',assets:result.assets
     };
-    cache.set(key,{at:NOW(),value:output});
+    if(!output.partial)cache.set(key,{at:NOW(),value:output});
     if(cache.size>45) cache.delete(cache.keys().next().value);
-    res.setHeader('Cache-Control','public, s-maxage=240, stale-while-revalidate=600');
+    res.setHeader('Cache-Control',output.partial?'public, s-maxage=30':'public, s-maxage=240, stale-while-revalidate=600');
     return res.status(200).json(output);
   } catch (error) {
     return res.status(502).json({error:'DEX Screener data temporarily unavailable',scope,page,detail:String(error.message||'Upstream error')});
